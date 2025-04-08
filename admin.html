@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Painel Administrativo - Minas Move Bem</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+      /* Exemplo simples de menu lateral */
+      .admin-container {
+          display: flex;
+      }
+      .admin-menu {
+          width: 200px;
+          background: #34495e;
+          color: #fff;
+          min-height: 80vh;
+          padding: 1rem;
+      }
+      .admin-menu a {
+          display: block;
+          color: #fff;
+          text-decoration: none;
+          margin: 0.5rem 0;
+      }
+      .admin-content {
+          flex: 1;
+          padding: 1rem;
+      }
+  </style>
+</head>
+<body onload="loadAdmin()">
+<header>
+  <img src="img/logo.png" alt="Minas Move Bem Logo" class="logo">
+  <h1>Painel Administrativo</h1>
+</header>
+<div class="admin-container">
+  <div class="admin-menu">
+    <h3>Menu ADM</h3>
+    <a href="index.html">Início</a>
+    <a href="vehicles.html">Ver Veículos Disponíveis</a>
+    <a href="supplier.html">Gerenciar Todos Veículos</a>
+    <a href="myrentals.html">Meus Aluguéis</a>
+    <a href="profile.html">Perfil</a>
+    <a href="suporte.html">Suporte</a>
+  </div>
+  <div class="admin-content" id="adminContent">
+    <h2>Bem-vindo(a) Administrador(a)!</h2>
+    <p>Aqui você pode controlar todo o sistema sem restrições.</p>
+  </div>
+</div>
+<footer>
+  <p>&copy; 2025 Minas Move Bem</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  function loadAdmin() {
+    const user = getLoggedUser();
+    if (!user || !user.isAdmin) {
+      alert("Acesso restrito ao ADM.");
+      window.location.href = "login.html";
+      return;
+    }
+  }
+</script>
+</body>
+</html>

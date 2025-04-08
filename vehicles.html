@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Veículos Disponíveis - Minas Move Bem</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body onload="initVehiclesPage()">
+<header>
+  <img src="img/logo.png" alt="Minas Move Bem Logo" class="logo" />
+  <h1>Veículos Disponíveis</h1>
+</header>
+<nav>
+  <a href="index.html" id="inicioLink">Início</a>
+  <a href="login.html" id="loginLink">Login</a>
+  <a href="profile.html">Perfil</a>
+  <a href="supplier.html">Fornecedor</a>
+  <a href="admin.html" id="adminLink" style="display:none;">ADM</a>
+  <a href="myrentals.html" id="myRentalsLink" style="display:none;">Meus Aluguéis</a>
+  <a href="suporte.html">Suporte</a>
+</nav>
+
+<div class="container">
+  <!-- Campo de busca e filtros -->
+  <div style="margin-bottom: 20px;">
+    <input type="text" id="searchInput" placeholder="Buscar por nome..." oninput="renderVehiclesByCategory()" style="padding: 8px; width: 100%; max-width: 300px;" />
+    <div style="margin-top: 10px;">
+      <button onclick="setFilter('todos')" class="button">Todos</button>
+      <button onclick="setFilter('carro')" class="button">Carros</button>
+      <button onclick="setFilter('moto')" class="button">Motos</button>
+      <button onclick="setFilter('aéreo')" class="button">Aeronaves</button>
+      <button onclick="setFilter('marítimo')" class="button">Barcos</button>
+    </div>
+  </div>
+  <div id="vehiclesContainer"></div>
+</div>
+
+<footer>
+  <p>&copy; 2025 Minas Move Bem</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  let selectedCategory = "todos";
+
+  function initVehiclesPage() {
+    autoUpdateVehicleStatus();
+    renderVehiclesByCategory();
+  }
+
+  function setFilter(category) {
+    selectedCategory = category;
+    renderVehiclesByCategory();
+  }
+
+  function getRentalDays() {
+    const start = localStorage.getItem("startDate");
+    const end = localStorage.getItem("endDate");
+    if (!start || !end) return 1;
+    const d1 = new Date(start);
+    const d2 = new Date(end);
+    const diffTime = d2 - d1;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 1;
+  }
+
+  function renderVehiclesByCategory() {
+    const user = getLoggedUser();
+    if (user) {
+      document.getElementById("loginLink").style.display = "none";
+      if (user.isAdmin) {
+        document.getElementById("adminLink").style.display = "inline-block";
+      }
+      document.getElementById("myRentalsLink").style.display = "inline-block";
+    }
+
+    const rentalDays = getRentalDays();
+    localStorage.setItem("rentalDays", rentalDays);
+
+    const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+    const vehicles = getAllVehicles();
+    const container = document.getElementById("vehiclesContainer");
+    container.innerHTML = "";
+
+    // Filtra veículos de acordo com o termo de busca e filtro de categoria
+    const filtered = vehicles.filter(v => {
+      const matchName = v.name.toLowerCase().includes(searchTerm);
+      const matchCategory = (selectedCategory === "todos" || v.category === selectedCategory);
+      return matchName && matchCategory;
+    });
+
+    if (!filtered || filtered.length === 0) {
+      container.innerHTML = "<h2>Nenhum veículo encontrado</h2>";
+      return;
+    }
+
+    // Organiza os veículos por categoria (apenas para os que passaram no filtro)
+    const categories = ["moto", "carro", "aéreo", "marítimo"];
+    categories.forEach(cat => {
+      const catVehicles = filtered.filter(v => v.category === cat);
+      if (catVehicles.length === 0) return;
+      let html = `<h2>${cat.toUpperCase()}</h2><ul class="item-list">`;
+      catVehicles.forEach(v => {
+        const pricePerDay = parsePriceToNumber(v.price);
+        const totalPrice = pricePerDay * rentalDays;
+        let itemClass = "";
+        let statusMsg = "";
+        let actionButton = "";
+        if (v.status !== "Disponível") {
+          itemClass = "unavailable";
+          if (v.status === "Alugado" && v.rentUntil) {
+            statusMsg = `<p style="color:red;">Disponível em ${v.rentUntil}</p>`;
+          } else if (v.status.toLowerCase() === "em revisão") {
+            statusMsg = `<p style="color:red;">Em Revisão</p>`;
+          } else if (v.status.toLowerCase() === "mecânico") {
+            statusMsg = `<p style="color:red;">No Mecânico</p>`;
+          } else {
+            statusMsg = `<p style="color:red;">Indisponível</p>`;
+          }
+          actionButton = `<a href="#" class="button" style="cursor: not-allowed;">Indisponível</a>`;
+        } else {
+          actionButton = `<a href="vehicle-details.html?id=${v.id}" class="button">Ver Detalhes</a>`;
+        }
+        html += `
+            <li class="item ${itemClass}">
+              <img src="${v.photo || 'https://via.placeholder.com/300x200?text=Veículo'}" alt="${v.name}">
+              <p><strong>${v.name}</strong></p>
+              <p>R$ ${pricePerDay}/dia</p>
+              <p><strong>Total: R$ ${totalPrice}</strong></p>
+              <p>Status: ${v.status}</p>
+              ${statusMsg}
+              ${actionButton}
+            </li>
+          `;
+      });
+      html += `</ul>`;
+      container.innerHTML += html;
+    });
+  }
+</script>
+</body>
+</html>

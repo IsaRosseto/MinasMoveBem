@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Sucesso no Aluguel - Minas Move Bem</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <img src="img/logo.png" alt="Minas Move Bem Logo" class="logo">
+  <h1>Aluguel Confirmado</h1>
+</header>
+
+<nav>
+  <a href="index.html">Início</a>
+  <a href="profile.html">Perfil</a>
+  <a href="supplier.html">Fornecedor</a>
+  <a href="admin.html" id="adminLink" style="display:none;">ADM</a>
+  <a href="myrentals.html" style="display:none;" id="myRentalsLink">Meus Aluguéis</a>
+  <a href="suporte.html">Suporte</a>
+</nav>
+
+<div class="container">
+  <h2>Seu aluguel foi confirmado com sucesso!</h2>
+  <p>Você receberá um e-mail com todos os detalhes da reserva.</p>
+  <a href="index.html" class="button">Voltar à Página Inicial</a>
+</div>
+
+<footer>
+  <p>&copy; 2025 Minas Move Bem</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  const user = getLoggedUser();
+  if (user) {
+    document.getElementById('myRentalsLink').style.display = 'inline-block';
+    if (user.isAdmin) {
+      document.getElementById('adminLink').style.display = 'inline-block';
+    }
+  }
+</script>
+</body>
+</html>

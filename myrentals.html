@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Meus Aluguéis - Minas Move Bem</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body onload="loadMyRentals()">
+<header>
+  <img src="img/logo.png" alt="Minas Move Bem Logo" class="logo">
+  <h1>Meus Aluguéis</h1>
+</header>
+<nav>
+  <a href="index.html">Início</a>
+  <a href="login.html" id="loginLink">Login</a>
+  <a href="profile.html">Perfil</a>
+  <a href="supplier.html">Fornecedor</a>
+  <a href="admin.html" id="adminLink" style="display:none;">ADM</a>
+  <a href="myrentals.html" style="display:none;" id="myRentalsLink">Meus Aluguéis</a>
+  <a href="suporte.html">Suporte</a>
+</nav>
+<div class="container" id="rentalsContainer">
+</div>
+<footer>
+  <p>&copy; 2025 Minas Move Bem</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  let user = null;
+
+  function loadMyRentals() {
+    user = getLoggedUser();
+    if (!user) {
+      alert("Você precisa estar logado.");
+      window.location.href = "login.html";
+      return;
+    }
+    document.getElementById('loginLink').style.display = 'none';
+    document.getElementById('myRentalsLink').style.display = 'inline-block';
+    if (user.isAdmin) {
+      document.getElementById('adminLink').style.display = 'inline-block';
+    }
+
+    renderRentals();
+  }
+
+  function renderRentals() {
+    const cont = document.getElementById('rentalsContainer');
+    if (!user.rentals || user.rentals.length === 0) {
+      cont.innerHTML = "<p>Você ainda não alugou nenhum veículo.</p>";
+      return;
+    }
+    let html = "<h2>Veículos Alugados</h2><ul class='item-list'>";
+    user.rentals.forEach(vid => {
+      const v = getVehicleById(vid);
+      if (!v) return;
+      html += `
+          <li class="item">
+            <img src="${v.photo || 'https://via.placeholder.com/300x200?text=Veículo'}" alt="${v.name}">
+            <p><strong>${v.name}</strong></p>
+            <button class="button" onclick="showRatingForm(${v.id})">Avaliar</button>
+          </li>
+        `;
+    });
+    html += "</ul>";
+    cont.innerHTML = html;
+  }
+
+  function showRatingForm(vehicleId) {
+    const v = getVehicleById(vehicleId);
+    const cont = document.getElementById('rentalsContainer');
+    const existingReview = getReviewsByVehicle(vehicleId).find(r => r.userId == user.id);
+
+    const ratingVal = existingReview ? existingReview.rating : 5;
+    const commentVal = existingReview ? existingReview.comment : "";
+
+    cont.innerHTML = `
+        <h2>Avaliar Veículo: ${v.name}</h2>
+        <label>Nota (1-5):</label>
+        <input type="number" id="ratingValue" min="1" max="5" value="${ratingVal}">
+        <label>Comentário:</label>
+        <textarea id="ratingComment" rows="3">${commentVal}</textarea>
+        <button class="button" onclick="saveRating(${v.id})">Salvar Avaliação</button>
+        <button class="button" onclick="renderRentals()">Cancelar</button>
+      `;
+  }
+
+  function saveRating(vehicleId) {
+    const ratingValue = document.getElementById('ratingValue').value;
+    const ratingComment = document.getElementById('ratingComment').value;
+
+    createReview({
+      userId: user.id,
+      vehicleId,
+      rating: ratingValue,
+      comment: ratingComment
+    });
+    alert("Avaliação salva!");
+    renderRentals();
+  }
+</script>
+</body>
+</html>

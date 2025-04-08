@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Área do Fornecedor - Minas Move Bem</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body onload="loadSupplierPage()">
+<header>
+  <img src="img/logo.png" alt="Minas Move Bem Logo" class="logo">
+  <h1>Área do Fornecedor</h1>
+</header>
+<nav>
+  <a href="index.html">Início</a>
+  <a href="login.html" id="loginLink">Login</a>
+  <a href="profile.html">Perfil</a>
+  <a href="admin.html" id="adminLink" style="display:none;">ADM</a>
+  <a href="myrentals.html" style="display:none;" id="myRentalsLink">Meus Aluguéis</a>
+  <a href="suporte.html">Suporte</a>
+</nav>
+<div class="container" id="supplierContainer"></div>
+<footer>
+  <p>&copy; 2025 Minas Move Bem</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  let currentUser = null;
+
+  function loadSupplierPage() {
+    currentUser = getLoggedUser();
+    if (!currentUser || (!currentUser.isSupplier && !currentUser.isAdmin)) {
+      alert("Acesso restrito a fornecedores/ADM. Faça login como fornecedor ou ADM.");
+      window.location.href = "login.html";
+      return;
+    }
+    if (currentUser) {
+      document.getElementById('loginLink').style.display = 'none';
+      document.getElementById('myRentalsLink').style.display = 'inline-block';
+      if (currentUser.isAdmin) {
+        document.getElementById('adminLink').style.display = 'inline-block';
+      }
+    }
+    renderSupplierVehicles();
+  }
+
+  function renderSupplierVehicles() {
+    const container = document.getElementById('supplierContainer');
+    container.innerHTML = `
+        <h2>Meus Veículos</h2>
+        <button class="button" onclick="showNewVehicleForm()">Cadastrar Novo Veículo</button>
+        <div id="vehicleList"></div>
+      `;
+    loadMyVehicles();
+  }
+
+  function loadMyVehicles() {
+    const listDiv = document.getElementById('vehicleList');
+    let vehicles = getAllVehicles();
+
+    if (!currentUser.isAdmin) {
+      // se não é ADM, filtra pelos veículos do fornecedor
+      vehicles = vehicles.filter(v => v.ownerId == currentUser.id);
+    }
+
+    if (vehicles.length === 0) {
+      listDiv.innerHTML = "<p>Nenhum veículo cadastrado.</p>";
+      return;
+    }
+    let html = '<ul class="item-list">';
+    vehicles.forEach(v => {
+      html += `
+          <li class="item">
+            <img src="${v.photo || 'https://via.placeholder.com/300x200?text=Veículo'}" alt="${v.name}">
+            <p><strong>${v.name}</strong></p>
+            <p>Status: ${v.status}</p>
+            <button class="button" onclick="editVehicle(${v.id})">Editar</button>
+            <button class="button" onclick="deleteVehicleHandler(${v.id})">Excluir</button>
+          </li>
+        `;
+    });
+    html += '</ul>';
+    listDiv.innerHTML = html;
+  }
+
+  function showNewVehicleForm() {
+    const container = document.getElementById('vehicleList');
+    container.innerHTML = `
+        <h3>Novo Veículo</h3>
+        <label>Nome:</label>
+        <input type="text" id="newName">
+        <label>Descrição:</label>
+        <textarea id="newDesc"></textarea>
+        <label>Preço (ex: R$ 200/dia):</label>
+        <input type="text" id="newPrice">
+        <label>Foto (URL):</label>
+        <input type="text" id="newPhoto">
+        <label>Categoria:</label>
+        <select id="newCategory">
+          <option value="moto">moto</option>
+          <option value="carro">carro</option>
+          <option value="aéreo">aéreo</option>
+          <option value="marítimo">marítimo</option>
+        </select>
+        <button class="button" onclick="createVehicleHandler()">Salvar</button>
+      `;
+  }
+
+  function createVehicleHandler() {
+    const name = document.getElementById('newName').value;
+    const description = document.getElementById('newDesc').value;
+    const price = document.getElementById('newPrice').value;
+    const photo = document.getElementById('newPhoto').value;
+    const category = document.getElementById('newCategory').value;
+
+    createVehicle({
+      name, description, price, photo, status: "Disponível",
+      ownerId: currentUser.id,
+      category
+    });
+    alert("Veículo criado!");
+    renderSupplierVehicles();
+  }
+
+  function editVehicle(vid) {
+    const v = getVehicleById(vid);
+    if (!v) return;
+    const listDiv = document.getElementById('vehicleList');
+    listDiv.innerHTML = `
+        <h3>Editar Veículo</h3>
+        <label>Nome:</label>
+        <input type="text" id="editName" value="${v.name}">
+        <label>Descrição:</label>
+        <textarea id="editDesc">${v.description}</textarea>
+        <label>Preço:</label>
+        <input type="text" id="editPrice" value="${v.price}">
+        <label>Foto (URL):</label>
+        <input type="text" id="editPhoto" value="${v.photo||''}">
+        <label>Status:</label>
+        <select id="editStatus">
+          <option value="Disponível" ${v.status==='Disponível'?'selected':''}>Disponível</option>
+          <option value="Alugado" ${v.status==='Alugado'?'selected':''}>Alugado</option>
+          <option value="Em revisão" ${v.status==='Em revisão'?'selected':''}>Em revisão</option>
+          <option value="Mecânico" ${v.status==='Mecânico'?'selected':''}>Mecânico</option>
+        </select>
+        <label>Categoria:</label>
+        <select id="editCategory">
+          <option value="moto" ${v.category==='moto'?'selected':''}>moto</option>
+          <option value="carro" ${v.category==='carro'?'selected':''}>carro</option>
+          <option value="aéreo" ${v.category==='aéreo'?'selected':''}>aéreo</option>
+          <option value="marítimo" ${v.category==='marítimo'?'selected':''}>marítimo</option>
+        </select>
+        <button class="button" onclick="updateVehicleHandler(${v.id})">Salvar</button>
+        <button class="button" onclick="renderSupplierVehicles()">Cancelar</button>
+      `;
+  }
+
+  function updateVehicleHandler(vehicleId) {
+    const name = document.getElementById('editName').value;
+    const description = document.getElementById('editDesc').value;
+    const price = document.getElementById('editPrice').value;
+    const photo = document.getElementById('editPhoto').value;
+    const status = document.getElementById('editStatus').value;
+    const category = document.getElementById('editCategory').value;
+
+    updateVehicle(vehicleId, { name, description, price, photo, status, category });
+    alert("Veículo atualizado!");
+    renderSupplierVehicles();
+  }
+
+  function deleteVehicleHandler(vehicleId) {
+    if (confirm("Tem certeza que deseja excluir este veículo?")) {
+      deleteVehicle(vehicleId);
+      alert("Excluído!");
+      renderSupplierVehicles();
+    }
+  }
+</script>
+</body>
+</html>

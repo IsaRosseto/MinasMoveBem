@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Pagamento - Minas Move Bem</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body onload="checkPaymentAccess()">
+<header>
+  <img src="img/logo.png" alt="Minas Move Bem Logo" class="logo">
+  <h1>Tela de Pagamento</h1>
+</header>
+<nav>
+  <a href="index.html" id="inicioLink">Início</a>
+  <a href="login.html" id="loginLink">Login</a>
+  <a href="profile.html">Perfil</a>
+  <a href="supplier.html">Fornecedor</a>
+  <a href="admin.html" id="adminLink" style="display:none;">ADM</a>
+  <a href="myrentals.html" style="display:none;" id="myRentalsLink">Meus Aluguéis</a>
+  <a href="suporte.html">Suporte</a>
+</nav>
+<div class="container">
+  <div id="paymentBox"></div>
+</div>
+<footer>
+  <p>&copy; 2025 Minas Move Bem</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  let vehicleId = null;
+  let totalPrice = 0;
+  let paymentMethod = 'cartao';
+  let currentUser = null;
+
+  function checkPaymentAccess() {
+    currentUser = getLoggedUser();
+    if (!currentUser) {
+      alert("Você precisa estar logado para efetuar o pagamento.");
+      window.location.href = "login.html";
+      return;
+    } else {
+      document.getElementById('loginLink').style.display = 'none';
+      document.getElementById('myRentalsLink').style.display = 'inline-block';
+      if (currentUser.isAdmin) {
+        document.getElementById('adminLink').style.display = 'inline-block';
+      }
+    }
+    const urlParams = new URLSearchParams(window.location.search);
+    vehicleId = urlParams.get('id');
+    const vehicle = getVehicleById(vehicleId);
+    if (!vehicle || vehicle.status !== "Disponível") {
+      alert("Veículo inválido ou não disponível.");
+      window.location.href = "index.html";
+      return;
+    }
+    renderPaymentForm(vehicle);
+  }
+
+  function renderPaymentForm(vehicle) {
+    const days = localStorage.getItem('rentalDays') || 1;
+    const dailyPrice = parsePriceToNumber(vehicle.price);
+    totalPrice = dailyPrice * days;
+
+    const paymentBox = document.getElementById('paymentBox');
+    paymentBox.innerHTML = `
+      <h2>Pagamento para: ${vehicle.name}</h2>
+      <p><strong>Preço/dia:</strong> ${vehicle.price}</p>
+      <p><strong>Dias:</strong> ${days}</p>
+      <p><strong>Total:</strong> R$ ${totalPrice}</p>
+      <hr>
+      <p>Escolha a forma de pagamento:</p>
+      <label><input type="radio" name="pagamento" value="cartao" checked onchange="selectPaymentMethod('cartao')"> Cartão de Crédito</label><br>
+      <label><input type="radio" name="pagamento" value="boleto" onchange="selectPaymentMethod('boleto')"> Boleto</label><br>
+      <label><input type="radio" name="pagamento" value="pix" onchange="selectPaymentMethod('pix')"> Pix</label><br><br>
+
+      <div id="paymentOptions"></div>
+
+      <button id="payBtn" class="button">Confirmar Pagamento</button>
+    `;
+
+    document.getElementById('payBtn').onclick = () => handlePayment(vehicle.id);
+    selectPaymentMethod('cartao');
+  }
+
+  function selectPaymentMethod(method) {
+    paymentMethod = method;
+    const paymentOptions = document.getElementById('paymentOptions');
+    const payBtn = document.getElementById('payBtn');
+
+    if (method === 'cartao') {
+      payBtn.textContent = "Confirmar Pagamento";
+      paymentOptions.innerHTML = `
+        <h3>Cartão de Crédito</h3>
+        <label>Número do Cartão (16 dígitos):</label>
+        <input type="text" id="cardNumber" placeholder="XXXX XXXX XXXX XXXX" maxlength="19">
+        <label>Validade (MM/AA):</label>
+        <input type="text" id="cardExp" placeholder="MM/AA" maxlength="5">
+        <label>CVV (3 dígitos):</label>
+        <input type="text" id="cardCVV" placeholder="XXX" maxlength="3">
+      `;
+    } else if (method === 'boleto') {
+      payBtn.textContent = "Próximo";
+      paymentOptions.innerHTML = `
+        <h3>Boleto</h3>
+        <p>Valor a pagar: R$ ${totalPrice}</p>
+        <img src="img/boleto.png" alt="Boleto" style="max-width:200px;">
+      `;
+    } else {
+      payBtn.textContent = "Próximo";
+      paymentOptions.innerHTML = `
+        <h3>Pix</h3>
+        <p>Código Pix gerado: ${generateRandomPixCode()}</p>
+        <img src="img/pix.png" alt="QRCode Pix" style="max-width:200px;">
+      `;
+    }
+  }
+
+  function handlePayment(vid) {
+    if (paymentMethod === 'cartao') {
+      const num = (document.getElementById('cardNumber').value || "").replace(/\s/g, '');
+      const exp = document.getElementById('cardExp').value;
+      const cvv = document.getElementById('cardCVV').value;
+
+      if (!/^\d{16}$/.test(num)) {
+        alert("Número de cartão inválido. 16 dígitos numéricos.");
+        return;
+      }
+      if (!/^\d{2}\/\d{2}$/.test(exp)) {
+        alert("Validade inválida. Formato MM/AA.");
+        return;
+      }
+      if (!/^\d{3}$/.test(cvv)) {
+        alert("CVV inválido.");
+        return;
+      }
+      finalizePayment(vid);
+    } else {
+      // boleto ou pix => redirect
+      window.location.href = "payment-next.html?id=" + vid + "&method=" + paymentMethod;
+    }
+  }
+
+  function finalizePayment(vehicleId) {
+    // Calcular data final
+    const days = localStorage.getItem('rentalDays') || 1;
+    const today = new Date();
+    const rentUntilDate = new Date(today.getTime() + days * 86400000);
+    const y = rentUntilDate.getFullYear();
+    const m = String(rentUntilDate.getMonth() + 1).padStart(2, '0');
+    const d = String(rentUntilDate.getDate()).padStart(2, '0');
+    const rentUntilStr = `${y}-${m}-${d}`;
+
+    updateVehicle(vehicleId, {
+      status: "Alugado",
+      rentUntil: rentUntilStr
+    });
+
+    // Adicionar no rentals do usuário
+    const users = getData('users');
+    const me = users.find(u => u.id === currentUser.id);
+    if (!me.rentals.includes(Number(vehicleId))) {
+      me.rentals.push(Number(vehicleId));
+    }
+    setData('users', users);
+
+    alert("Pagamento confirmado. Veículo alugado até " + rentUntilStr);
+    window.location.href = "success.html?id=" + vehicleId;
+  }
+
+  function generateRandomPixCode() {
+    let code = "PIX-";
+    for (let i=0; i<10; i++) {
+      code += Math.floor(Math.random() * 10);
+    }
+    return code;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Meu Perfil</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body onload="loadProfile()">
+<header>
+  <img src="img/logo.png" alt="Minas Move Bem Logo" class="logo">
+  <h1>Meu Perfil</h1>
+</header>
+
+<nav>
+  <a href="index.html">Início</a>
+  <a href="login.html" id="loginLink">Login</a>
+  <a href="supplier.html">Fornecedor</a>
+  <a href="admin.html" id="adminLink" style="display:none;">ADM</a>
+  <a href="myrentals.html" id="myRentalsLink" style="display:none;">Meus Aluguéis</a>
+  <a href="suporte.html">Suporte</a>
+</nav>
+
+<div class="container">
+  <h2>Dados do Usuário</h2>
+  <div id="profileBox" class="card"></div>
+</div>
+
+<footer>
+  <p>&copy; 2025 Minas Move Bem</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  function loadProfile() {
+    const user = getLoggedUser();
+    if (!user) {
+      alert("Você precisa estar logado para ver seu perfil.");
+      window.location.href = "login.html";
+      return;
+    }
+
+    // Oculta link de login, mostra menus adicionais se necessário
+    document.getElementById('loginLink').style.display = 'none';
+    document.getElementById('myRentalsLink').style.display = 'inline-block';
+    if (user.isAdmin) {
+      document.getElementById('adminLink').style.display = 'inline-block';
+    }
+
+    renderProfile(user);
+  }
+
+  function renderProfile(user) {
+    const profileBox = document.getElementById('profileBox');
+    profileBox.innerHTML = `
+        <img src="${user.photo || 'https://via.placeholder.com/150?text=Sem+Foto'}" alt="Foto de Perfil" style="width:150px;height:150px;border-radius:50%;object-fit:cover;">
+        <h3>${user.name}</h3>
+        <p><strong>E-mail:</strong> ${user.email}</p>
+        <p><strong>Descrição:</strong> ${user.description || '(Nenhuma descrição)'}</p>
+        <button class="button" onclick="showEditForm()">Editar Perfil</button>
+        <button class="button" onclick="handleLogout()">Sair</button>
+      `;
+  }
+
+  function showEditForm() {
+    const user = getLoggedUser();
+    if (!user) return;
+    const profileBox = document.getElementById('profileBox');
+    profileBox.innerHTML = `
+        <h3>Editar Perfil</h3>
+        <label>Nome:</label>
+        <input type="text" id="editName" value="${user.name}">
+        <label>E-mail:</label>
+        <input type="text" id="editEmail" value="${user.email}">
+        <label>Descrição:</label>
+        <textarea id="editDesc">${user.description || ''}</textarea>
+        <label>Foto (URL):</label>
+        <input type="text" id="editPhoto" value="${user.photo || ''}">
+        <button class="button" onclick="saveProfile()">Salvar</button>
+        <button class="button" onclick="renderProfile(getLoggedUser())">Cancelar</button>
+      `;
+  }
+
+  function saveProfile() {
+    const user = getLoggedUser();
+    if (!user) return;
+
+    const name = document.getElementById('editName').value;
+    const email = document.getElementById('editEmail').value;
+    const description = document.getElementById('editDesc').value;
+    const photo = document.getElementById('editPhoto').value;
+
+    updateUserProfile(user.id, { name, email, description, photo });
+    alert("Perfil atualizado!");
+    renderProfile(getLoggedUser());
+  }
+
+  function handleLogout() {
+    logoutUser();
+    window.location.href = "login.html";
+  }
+</script>
+</body>
+</html>

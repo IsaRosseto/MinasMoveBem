@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Detalhes do Veículo - Minas Move Bem</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body onload="loadVehicleDetails()">
+<header>
+  <img src="img/logo.png" alt="Minas Move Bem Logo" class="logo">
+  <h1>Detalhes do Veículo</h1>
+</header>
+<nav>
+  <a href="index.html">Início</a>
+  <a href="login.html">Login</a>
+  <a href="profile.html">Perfil</a>
+  <a href="supplier.html">Fornecedor</a>
+  <a href="suporte.html">Suporte</a>
+</nav>
+<div class="container" id="detailsContainer">
+  <!-- Detalhes do veículo serão carregados aqui -->
+</div>
+<footer>
+  <p>&copy; 2025 Minas Move Bem</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  function loadVehicleDetails() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const vehicleId = urlParams.get('id');
+    const vehicle = getVehicleById(vehicleId);
+    const container = document.getElementById('detailsContainer');
+
+    if (!vehicle) {
+      container.innerHTML = "<h2>Veículo não encontrado.</h2>";
+      return;
+    }
+
+    const pricePerDay = parsePriceToNumber(vehicle.price);
+    const rentalDays = Number(localStorage.getItem("rentalDays") || 1);
+    const total = pricePerDay * rentalDays;
+
+    let html = `
+        <div class="card">
+          <img src="${vehicle.photo || 'https://via.placeholder.com/300x200?text=Veículo'}" alt="${vehicle.name}" style="max-width:300px; border-radius:4px; margin-bottom:10px;">
+          <h2>${vehicle.name}</h2>
+          <p><strong>Categoria:</strong> ${vehicle.category}</p>
+          <p><strong>Preço:</strong> ${vehicle.price} (R$ ${pricePerDay}/dia)</p>
+          <p><strong>Total estimado:</strong> R$ ${total}</p>
+          <p><strong>Status:</strong> ${vehicle.status}</p>
+          <p><strong>Descrição:</strong> ${vehicle.description}</p>
+        </div>
+      `;
+
+    const user = getLoggedUser();
+    if (vehicle.status === "Disponível") {
+      if (user) {
+        html += `<a href="payment.html?id=${vehicle.id}" class="button">Alugar/Pagar</a>`;
+      } else {
+        html += `<p>Você precisa estar logado para alugar este veículo.</p>`;
+      }
+    } else {
+      html += `<p style="color:red;">Este veículo não está disponível para aluguel no momento.</p>`;
+    }
+
+    // Seção de avaliações
+    html += `<h3>Avaliações</h3>`;
+    const reviews = getReviewsByVehicle(vehicleId);
+    if (reviews && reviews.length > 0) {
+      html += `<ul class="review-list">`;
+      reviews.forEach(r => {
+        // Buscando o nome do usuário que avaliou:
+        const allUsers = getData('users');
+        const reviewer = allUsers.find(u => u.id == r.userId);
+        html += `
+            <li style="border:1px solid #ccc; padding:8px; margin-bottom:8px; border-radius:4px;">
+              <p><strong>Usuário:</strong> ${reviewer ? reviewer.name : "Desconhecido"}</p>
+              <p><strong>Nota:</strong> ${r.rating}</p>
+              <p><strong>Comentário:</strong> ${r.comment}</p>
+            </li>
+          `;
+      });
+      html += `</ul>`;
+    } else {
+      html += `<p>Nenhuma avaliação até o momento.</p>`;
+    }
+
+    container.innerHTML = html;
+  }
+</script>
+</body>
+</html>

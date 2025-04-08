@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Avaliação do Serviço - Minas Move Bem</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body onload="loadRating()">
+<header>
+  <img src="img/logo.png" alt="Minas Move Bem Logo" class="logo">
+  <h1>Avalie o Serviço</h1>
+</header>
+<nav>
+  <a href="index.html">Início</a>
+  <a href="login.html">Login</a>
+  <a href="profile.html">Perfil</a>
+  <a href="supplier.html">Fornecedor</a>
+  <a href="suporte.html">Suporte</a>
+</nav>
+<div class="container" id="ratingContainer">
+</div>
+<footer>
+  <p>&copy; 2025 Minas Move Bem</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  let vehicleId = null;
+  function loadRating() {
+    const user = getLoggedUser();
+    if (!user) {
+      alert("Você precisa estar logado para avaliar.");
+      window.location.href = "login.html";
+      return;
+    }
+    const urlParams = new URLSearchParams(window.location.search);
+    vehicleId = urlParams.get('id');
+    const vehicle = getVehicleById(vehicleId);
+    if (!vehicle) {
+      document.getElementById('ratingContainer').innerHTML = "<p>Veículo não encontrado.</p>";
+      return;
+    }
+    document.getElementById('ratingContainer').innerHTML = `
+        <h2>${vehicle.name}</h2>
+        <p><strong>Como foi sua experiência?</strong></p>
+        <label>Nota (1-5):</label>
+        <input type="number" id="ratingValue" min="1" max="5" value="5">
+        <label>Comentário:</label>
+        <textarea id="ratingComment" rows="3"></textarea>
+        <button class="button" onclick="saveRating()">Enviar Avaliação</button>
+      `;
+  }
+
+  function saveRating() {
+    const user = getLoggedUser();
+    const ratingValue = document.getElementById('ratingValue').value;
+    const ratingComment = document.getElementById('ratingComment').value;
+
+    createReview({
+      userId: user.id,
+      vehicleId: vehicleId,
+      rating: ratingValue,
+      comment: ratingComment
+    });
+    alert("Obrigado pela avaliação!");
+    window.location.href = "index.html";
+  }
+</script>
+</body>
+</html>

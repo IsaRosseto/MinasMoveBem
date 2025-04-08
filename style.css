@@ -1,0 +1,359 @@
+:root {
+    --fb-blue: #4267B2;
+    --fb-dark-blue: #3b5998;
+    --background-color: #f0f2f5;
+    --text-color: #1c1e21;
+    --card-background: #fff;
+    --accent-color: #42b72a;
+    --border-radius: 6px;
+    --transition-speed: 0.3s;
+    --box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    --font-family: "Helvetica", "Arial", sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-family);
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+header {
+    background: var(--fb-blue);
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+    position: relative;
+    box-shadow: var(--box-shadow);
+}
+header img.logo {
+    max-width: 120px;
+    position: absolute;
+    left: 20px;
+    top: 10px;
+}
+
+nav {
+    background: var(--fb-dark-blue);
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+nav a {
+    color: #fff;
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    transition: background-color var(--transition-speed) ease;
+}
+nav a:hover {
+    background: var(--fb-blue);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 1rem auto;
+    padding: 1.5rem;
+    background: var(--card-background);
+    box-shadow: var(--box-shadow);
+    border-radius: var(--border-radius);
+    min-height: 60vh;
+}
+
+h1, h2, h3 {
+    margin: 1rem 0;
+    color: var(--fb-blue);
+    font-weight: 600;
+}
+
+form {
+    margin-top: 1rem;
+}
+form label {
+    display: block;
+    margin: 0.5rem 0 0.2rem;
+    font-weight: bold;
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form input[type="date"],
+form input[type="time"],
+form select,
+form textarea {
+    width: 100%;
+    padding: 0.6rem;
+    margin-bottom: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    transition: border-color var(--transition-speed) ease;
+}
+form input:focus,
+form select:focus,
+form textarea:focus {
+    outline: none;
+    border-color: var(--fb-blue);
+}
+form button {
+    display: inline-block;
+    padding: 0.6rem 1.2rem;
+    background: var(--fb-blue);
+    color: #fff;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background var(--transition-speed) ease;
+    font-weight: bold;
+}
+form button:hover {
+    background: var(--fb-dark-blue);
+}
+
+.button {
+    background-color: var(--fb-blue);
+    color: #fff !important;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 10px;
+    text-align: center;
+    transition: background-color var(--transition-speed) ease;
+}
+.button:hover {
+    background-color: var(--fb-dark-blue);
+    color: #fff !important;
+}
+
+.item-list {
+    list-style: none;
+    margin: 1rem;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+.item {
+    background: #fff;
+    padding: 0.8rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    width: 280px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    transition: box-shadow var(--transition-speed) ease;
+}
+.item:hover {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+}
+.item img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--border-radius);
+    margin-bottom: 0.5rem;
+}
+.item a {
+    text-decoration: none;
+    font-weight: bold;
+    transition: color var(--transition-speed) ease;
+}
+.item a:hover {
+    color: #fff; /* ou var(--fb-dark-blue), dependendo do que preferir */
+}
+
+/* Força texto branco e obedece background */
+.item .button {
+    color: #fff !important;
+    background-color: var(--fb-blue);
+}
+.item .button:hover {
+    background-color: var(--fb-dark-blue);
+    color: #fff !important;
+}
+
+/* Veículo indisponível => grayscale e sem clique */
+.item.unavailable img {
+    filter: grayscale(100%);
+    opacity: 0.7;
+}
+.item.unavailable .button {
+    pointer-events: none;
+    background-color: #999 !important;
+    opacity: 0.6;
+    cursor: not-allowed;
+    color: #fff !important;
+}
+
+.card {
+    background: #fff;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.card img {
+    max-width: 100%;
+    border-radius: var(--border-radius);
+}
+
+footer {
+    background: var(--fb-blue);
+    color: #fff;
+    text-align: center;
+    padding: 1rem;
+    margin-top: 1rem;
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+}
+
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        align-items: center;
+    }
+    header img.logo {
+        position: static;
+        margin-bottom: 0.5rem;
+    }
+    .item {
+        width: 100%;
+        max-width: 400px;
+    }
+}
+
+.home-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--background-color);
+    padding: 2rem;
+}
+.left-col {
+    flex: 1;
+    max-width: 600px;
+    padding: 40px;
+    text-align: left;
+}
+.left-col h1 {
+    font-size: 48px;
+    color: var(--fb-blue);
+    margin-bottom: 20px;
+}
+.left-col p {
+    font-size: 20px;
+    color: var(--text-color);
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+.right-col {
+    flex: 1;
+    max-width: 400px;
+    padding: 40px;
+}
+.login-box {
+    background-color: var(--card-background);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+.login-box h2 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    color: var(--fb-blue);
+    text-align: center;
+}
+.login-box label {
+    display: block;
+    font-weight: bold;
+    margin: 10px 0 5px;
+}
+.login-box input[type="email"],
+.login-box input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    transition: border var(--transition-speed) ease;
+}
+.login-box input:focus {
+    border-color: var(--fb-blue);
+}
+.login-box button {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--fb-blue);
+    color: #fff;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: background-color var(--transition-speed) ease;
+}
+.login-box button:hover {
+    background-color: var(--fb-dark-blue);
+}
+.login-box a {
+    color: #1877f2;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 14px;
+}
+.divider {
+    text-align: center;
+    margin: 10px 0;
+    color: #a5a5a5;
+    font-size: 12px;
+}
+.create-account-btn {
+    width: auto;
+    background-color: var(--accent-color);
+    transition: background-color var(--transition-speed) ease;
+}
+.create-account-btn:hover {
+    background-color: #36a420;
+}
+@media (max-width: 768px) {
+    .home-container {
+        flex-direction: column;
+        padding: 20px;
+    }
+    .left-col {
+        max-width: 100%;
+        padding: 20px;
+        text-align: center;
+    }
+    .left-col h1 {
+        font-size: 32px;
+    }
+    .left-col p {
+        font-size: 18px;
+    }
+    .right-col {
+        max-width: 100%;
+        padding: 20px;
+    }
+    .login-box {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 400px;
+    }
+}

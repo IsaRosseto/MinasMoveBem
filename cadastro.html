@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro - Minas Move Bem</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <img src="img/logo.png" alt="Minas Move Bem Logo" class="logo">
+  <h1>Cadastro</h1>
+</header>
+<nav>
+  <a href="index.html">Início</a>
+  <a href="login.html">Login</a>
+  <a href="supplier.html">Fornecedor</a>
+  <a href="suporte.html">Suporte</a>
+</nav>
+<div class="container">
+  <h2>Crie sua Conta</h2>
+  <form onsubmit="return handleRegister(event)">
+    <label for="nome">Nome Completo:</label>
+    <input type="text" id="nome" placeholder="Ex: João da Silva" required>
+
+    <label for="email">E-mail:</label>
+    <input type="email" id="email" placeholder="seuemail@exemplo.com" required>
+
+    <label for="senha">Senha:</label>
+    <input type="password" id="senha" placeholder="********" required>
+
+    <label>
+      <input type="checkbox" id="supplierCheck">
+      Sou Fornecedor
+    </label>
+
+    <!-- Campo que aparece somente se for fornecedor -->
+    <div id="specialPassArea" style="display:none;">
+      <label for="specialPass">Senha Especial:</label>
+      <input type="password" id="specialPass" placeholder="220423">
+    </div>
+
+    <button type="submit">Cadastrar</button>
+  </form>
+</div>
+<footer>
+  <p>&copy; 2025 Minas Move Bem</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  const supplierCheck = document.getElementById('supplierCheck');
+  supplierCheck.addEventListener('change', () => {
+    const spArea = document.getElementById('specialPassArea');
+    if (supplierCheck.checked) {
+      spArea.style.display = 'block';
+    } else {
+      spArea.style.display = 'none';
+    }
+  });
+
+  function handleRegister(e) {
+    e.preventDefault();
+    const name = document.getElementById('nome').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('senha').value;
+    const isSupplier = document.getElementById('supplierCheck').checked;
+    const specialPass = document.getElementById('specialPass').value;
+
+    const result = registerUser(email, password, name, isSupplier, specialPass);
+    if (!result.success) {
+      alert(result.msg);
+      return false;
+    }
+    alert(result.msg);
+    window.location.href = 'login.html';
+    return false;
+  }
+</script>
+</body>
+</html>

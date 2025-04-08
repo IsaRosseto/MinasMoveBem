@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Finalize seu Pagamento - Minas Move Bem</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body onload="loadPaymentNext()">
+<header>
+  <img src="img/logo.png" alt="Minas Move Bem Logo" class="logo">
+  <h1>Finalize seu Pagamento</h1>
+</header>
+<nav>
+  <a href="index.html">Início</a>
+  <a href="login.html" id="loginLink">Login</a>
+  <a href="profile.html">Perfil</a>
+  <a href="supplier.html">Fornecedor</a>
+  <a href="admin.html" id="adminLink" style="display:none;">ADM</a>
+  <a href="myrentals.html" style="display:none;" id="myRentalsLink">Meus Aluguéis</a>
+  <a href="suporte.html">Suporte</a>
+</nav>
+<div class="container" id="paymentNextContainer">
+</div>
+<footer>
+  <p>&copy; 2025 Minas Move Bem</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  let vehicleId = null;
+  let paymentMethod = null;
+  let currentUser = null;
+
+  function loadPaymentNext() {
+    currentUser = getLoggedUser();
+    if (!currentUser) {
+      alert("Você precisa estar logado.");
+      window.location.href = "login.html";
+      return;
+    } else {
+      document.getElementById('loginLink').style.display = 'none';
+      document.getElementById('myRentalsLink').style.display = 'inline-block';
+      if (currentUser.isAdmin) {
+        document.getElementById('adminLink').style.display = 'inline-block';
+      }
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    vehicleId = urlParams.get('id');
+    paymentMethod = urlParams.get('method');
+    const vehicle = getVehicleById(vehicleId);
+    if (!vehicle) {
+      document.getElementById('paymentNextContainer').innerHTML = "<p>Veículo não encontrado.</p>";
+      return;
+    }
+    let methodText = (paymentMethod === 'pix' ? "Pix" : "Boleto");
+    document.getElementById('paymentNextContainer').innerHTML = `
+        <h2>${methodText} - Instruções</h2>
+        <p>Depois que seu pagamento for confirmado, você receberá um e-mail confirmando o aluguel do veículo <strong>${vehicle.name}</strong>.</p>
+        <p>Para prosseguir, clique no botão abaixo. (Simulação)</p>
+        <button class="button" onclick="confirmPayment()">Confirmar Pagamento</button>
+      `;
+  }
+
+  function confirmPayment() {
+    updateVehicle(vehicleId, { status: "Alugado" });
+    const users = getData('users');
+    const me = users.find(u => u.id === currentUser.id);
+    if (!me.rentals.includes(Number(vehicleId))) {
+      me.rentals.push(Number(vehicleId));
+    }
+    setData('users', users);
+
+    alert("Pagamento confirmado. Veículo alugado!");
+    window.location.href = "success.html?id=" + vehicleId;
+  }
+</script>
+</body>
+</html>

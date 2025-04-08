@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Minas Move Bem - Aluguel de Veículos</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
+</head>
+<body onload="checkIndex()">
+<header>
+  <img src="img/logo.png" alt="Minas Move Bem Logo" class="logo">
+  <h1>Minas Move Bem</h1>
+</header>
+<nav id="mainNav">
+  <a href="index.html" id="inicioLink">Início</a>
+  <a href="login.html" id="loginLink">Login</a>
+  <a href="profile.html" id="perfilLink">Perfil</a>
+  <a href="supplier.html" id="fornecedorLink">Fornecedor</a>
+  <a href="admin.html" id="adminLink" style="display:none;">ADM</a>
+  <a href="myrentals.html" id="myRentalsLink" style="display:none;">Meus Aluguéis</a>
+  <a href="suporte.html">Suporte</a>
+</nav>
+
+<div class="container">
+  <h2>Encontre o veículo ideal para você</h2>
+  <form onsubmit="return handleSearch(event)">
+    <label for="data-aluguel">Data de Aluguel:</label>
+    <input type="date" id="data-aluguel" name="data-aluguel" required>
+
+    <label for="hora-aluguel">Hora de Retirada:</label>
+    <input type="time" id="hora-aluguel" name="hora-aluguel" required>
+
+    <label for="data-devolucao">Data de Devolução:</label>
+    <input type="date" id="data-devolucao" name="data-devolucao" required>
+
+    <label for="hora-devolucao">Hora de Devolução:</label>
+    <input type="time" id="hora-devolucao" name="hora-devolucao" required>
+
+    <label for="local-retirada">Local de Retirada:</label>
+    <select id="local-retirada" name="local-retirada" required>
+      <option value="">Selecione</option>
+      <option value="São Paulo">São Paulo</option>
+      <option value="Rio de Janeiro">Rio de Janeiro</option>
+      <option value="São Bernardo">São Bernardo</option>
+    </select>
+
+    <label for="local-devolucao">Local de Devolução:</label>
+    <select id="local-devolucao" name="local-devolucao" required>
+      <option value="">Selecione</option>
+      <option value="São Paulo">São Paulo</option>
+      <option value="Rio de Janeiro">Rio de Janeiro</option>
+      <option value="São Bernardo">São Bernardo</option>
+    </select>
+
+    <button type="submit">Buscar</button>
+  </form>
+</div>
+
+<footer>
+  <p>&copy; 2025 Minas Move Bem - Todos os direitos reservados</p>
+</footer>
+
+<script>
+  function checkIndex() {
+    const user = getLoggedUser();
+    const loginLink = document.getElementById('loginLink');
+    const adminLink = document.getElementById('adminLink');
+    const myRentalsLink = document.getElementById('myRentalsLink');
+
+    if (user) {
+      loginLink.style.display = 'none';
+      myRentalsLink.style.display = 'inline-block';
+      if (user.isAdmin) {
+        adminLink.style.display = 'inline-block';
+      }
+    }
+  }
+
+  function handleSearch(e) {
+    e.preventDefault();
+    // salva data-aluguel e data-devolucao no localStorage
+    const startDate = document.getElementById('data-aluguel').value;
+    const endDate = document.getElementById('data-devolucao').value;
+
+    localStorage.setItem('startDate', startDate);
+    localStorage.setItem('endDate', endDate);
+
+    // Redireciona para vehicles.html
+    window.location.href = 'vehicles.html';
+    return false;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login - Minas Move Bem</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!--
+  Página de LOGIN inspirada no layout do Facebook:
+  Duas colunas (à esquerda o logo + frase, à direita o formulário).
+  A “index.html” do seu site permanece como está!
+-->
+<div class="home-container">
+  <!-- COLUNA ESQUERDA: Logo e texto -->
+  <div class="left-col">
+    <img src="img/logo.png" alt="Logo Minas Move Bem" style="max-width: 200px; margin-bottom: 20px;">
+    <h1>Minas Move Bem</h1>
+    <p>Conectando você a uma ampla gama de veículos para locação, de forma prática e segura.</p>
+  </div>
+
+  <!-- COLUNA DIREITA: Formulário de login -->
+  <div class="right-col">
+    <div class="login-box">
+      <h2>Acesse sua conta</h2>
+      <form onsubmit="return handleLogin(event)">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" placeholder="seuemail@exemplo.com" required>
+
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" placeholder="********" required>
+
+        <!-- (Opcional) Checkbox para login de fornecedor -->
+        <div style="margin: 10px 0;">
+          <label>
+            <input type="checkbox" id="isSupplier">
+            Sou Fornecedor
+          </label>
+        </div>
+
+        <button type="submit">Entrar</button>
+      </form>
+
+      <a href="#" style="margin-top: 10px; display:inline-block;">Esqueceu a senha?</a>
+
+      <div class="divider">ou</div>
+
+      <!-- Botão para criar conta, linkando cadastro.html -->
+      <button class="create-account-btn" onclick="window.location.href='cadastro.html'">
+        Criar nova conta
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SEU ARQUIVO DE SCRIPT -->
+<script src="script.js"></script>
+<script>
+  function handleLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('senha').value.trim();
+    const isSupplierLogin = document.getElementById('isSupplier').checked;
+
+    // Usa a função do script.js
+    const success = loginUser(email, password, isSupplierLogin);
+    if (!success) {
+      alert("Credenciais inválidas ou tipo de usuário incorreto.");
+      return false;
+    }
+
+    // Se deu certo: redirecionar
+    alert("Login bem-sucedido!");
+    window.location.href = "index.html";
+    // Ajuste se quiser redirecionar fornecedor para supplier.html, por ex.:
+    // if(isSupplierLogin) window.location.href = "supplier.html";
+
+    return false;
+  }
+</script>
+</body>
+</html>
